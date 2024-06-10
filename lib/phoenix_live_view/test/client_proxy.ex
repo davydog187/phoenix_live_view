@@ -313,6 +313,8 @@ defmodule Phoenix.LiveViewTest.ClientProxy do
                :ok <- maybe_enabled(type, node, element),
                {:ok, event_or_js} <- maybe_event(type, node, element),
                {:ok, dom_values} <- maybe_values(type, node, element) do
+            dbg(node)
+
             event_or_js
             |> maybe_js_event()
             |> List.wrap()
@@ -1014,15 +1016,19 @@ defmodule Phoenix.LiveViewTest.ClientProxy do
 
   defp maybe_js_event("[" <> _ = encoded_js) do
     js = encoded_js |> DOM.parse() |> Phoenix.json_library().decode!()
-    op = Enum.filter(js, fn [kind, _args] -> kind == "push" end)
+    op = Enum.filter(js, fn [kind, _args] -> kind == "push" or kind == "navigate" end)
 
     case op do
       [] ->
         raise ArgumentError, "no push command found within JS commands: #{inspect(js)}"
 
       push_events ->
-        Enum.map(push_events, fn ["push", %{"event" => event} = args] ->
-          {event, args["value"] || %{}, args["target"]}
+        Enum.map(push_events, fn
+          ["push", %{"event" => event} = args] ->
+            {event, args["value"] || %{}, args["target"]}
+
+          ["navigate", %{"href" => href} = args] ->
+            {:navigate, href, args["replace"]}
         end)
     end
   end

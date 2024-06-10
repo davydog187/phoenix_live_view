@@ -68,6 +68,17 @@ defmodule Phoenix.LiveView.EventTest do
     end
   end
 
+  describe "navigate" do
+    test "sends an event", %{conn: conn} do
+      {:ok, view, _html} = live(conn, "/events-navigate-js")
+
+      assert view |> element("#navigate-to-events") |> render_click()
+
+      {path, _flash} = assert_redirect(view)
+      assert path == "/events"
+    end
+  end
+
   describe "replies" do
     test "sends reply from handle_event with general assigns diff", %{conn: conn} do
       {:ok, view, _html} = live(conn, "/events")

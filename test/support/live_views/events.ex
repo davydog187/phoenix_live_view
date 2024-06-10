@@ -220,3 +220,19 @@ defmodule Phoenix.LiveViewTest.EventsInComponentLive do
     {:noreply, update(socket, :count, &(&1 + 1))}
   end
 end
+
+defmodule Phoenix.LiveViewTest.EventsNavigateJSLive do
+  use Phoenix.LiveView, namespace: Phoenix.LiveViewTest
+  alias Phoenix.LiveView.JS
+
+  def render(assigns) do
+    ~H"""
+    <button
+      id="navigate-to-events"
+      phx-click={JS.navigate("/events")}
+    >
+    Navigate
+    </button>
+    """
+  end
+end
